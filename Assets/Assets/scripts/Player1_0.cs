@@ -3,13 +3,28 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Security.Cryptography;
 using UnityEngine;
-
+//liu
 public class Player : MonoBehaviour
 {
+    //基础数值
+    public float moveSpeed = 4;
+
+    //无敌效果
     public bool isDefended = true;
     public float Defentime = 3;
-    public float moveSpeed = 4;
+
+    //双发
+    public int double_time = 5;
+    public bool double_bullet = false; 
+
+    //加速
+    public bool speed_up = false;
+    public float speed_time = 3f;
+
+    //时间计时器
     private float timeValue = 0;
+
+    //引用类
     private Vector3 bulletEulerAngles;
     private SpriteRenderer sr;
     public Sprite[] tankSprite; // 上 右 下 左
@@ -19,6 +34,7 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
+
         sr = GetComponent<SpriteRenderer>(); // 修正拼写错误
     }
 
@@ -33,13 +49,27 @@ public class Player : MonoBehaviour
             else if (bulletEulerAngles.z == -90) spawnOffset = Vector3.right * 1.0f; // 右
             else if (bulletEulerAngles.z == 90) spawnOffset = Vector3.left * 1.0f;  // 左
             Instantiate(bulletPrefab, transform.position + spawnOffset, Quaternion.Euler(bulletEulerAngles));
-
+            if (double_bullet == true && double_time > 0)
+            {
+                if (bulletEulerAngles.z == 0) spawnOffset = Vector3.up * 1.5f;    // 上
+                else if (bulletEulerAngles.z == 180) spawnOffset = Vector3.down * 1.5f; // 下
+                else if (bulletEulerAngles.z == -90) spawnOffset = Vector3.right * 1.5f; // 右
+                else if (bulletEulerAngles.z == 90) spawnOffset = Vector3.left * 1.5f;  // 左
+                Instantiate(bulletPrefab, transform.position + spawnOffset, Quaternion.Euler(bulletEulerAngles));
+                double_time -= 1;
+            }
+            else if (double_time <= 0)
+            {
+                double_bullet = false;
+                double_time = 5;
+            }
             timeValue = 0; // 重置冷却时间
         }
     }
 
     void Update()
     {
+        //无敌效果
         if (isDefended)
         {
             defenEffectPrefab.SetActive(true);
@@ -51,7 +81,7 @@ public class Player : MonoBehaviour
             }
         }
 
-        //更新冷却时间
+        //更新冷却时间（子弹射出后，冷却时间为0.4秒）
         if (timeValue < 0.4f)
         {
             timeValue += Time.deltaTime;
@@ -135,10 +165,25 @@ public class Player : MonoBehaviour
         {
             movement.Normalize();
         }
-
+        chance();
         transform.Translate(movement * moveSpeed * Time.fixedDeltaTime);
     }
+    private void chance()
+    { 
+        
+        if (speed_time >= 0 && speed_up == true)
+        {
 
+            moveSpeed = 6f;
+            speed_time -= Time.deltaTime;
+        }
+        else if (speed_time < 0)
+        {
+            speed_up = false;
+            moveSpeed = 4f;
+            speed_time = 3f;
+        }
+    }
     private void die()
     {
         if (isDefended)
@@ -158,6 +203,15 @@ public class Player : MonoBehaviour
                 isDefended = true;
                 Defentime = 3; // 重置无敌时间
                 Destroy(collision.gameObject); // 销毁道具
+                break;
+            case "DoubleShot":
+                double_bullet = true;
+                Destroy(collision.gameObject);
+                break;
+            case "Speed":
+                speed_up = true;
+                bullet.isPlayerSpeedup = true;
+                Destroy(collision.gameObject);
                 break;
             default:
                 break;

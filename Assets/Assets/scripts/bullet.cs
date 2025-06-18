@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class bullet : MonoBehaviour
 {
-    public float moveSpeed = 10;
+    public static bool isPlayerSpeedup = false;
+    public float Speed_up_time = 6f;
     public bool isPlayerBullet = true; // 是否为玩家子弹
-    public float lifeTime = 5; // 子弹存活时间，单位为秒
+    public float lifeTime = 1; // 子弹存活时间，单位为秒
 
     private float timer; // 计时器变量
 
@@ -20,7 +21,18 @@ public class bullet : MonoBehaviour
     void Update()
     {
         // 移动子弹
-        transform.Translate(transform.up * moveSpeed * Time.deltaTime, Space.World);
+        if (isPlayerSpeedup == true && Speed_up_time >= 0)
+        {
+            lifeTime = 2f;
+            Speed_up_time -= Time.deltaTime;
+        }
+        else if (Speed_up_time < 0)
+        {
+            lifeTime = 1f;
+            isPlayerSpeedup = false;
+            Speed_up_time = 6f;
+        }
+        transform.Translate(transform.up * Time.deltaTime * 10, Space.World);
 
         // 更新计时器
         timer -= Time.deltaTime;

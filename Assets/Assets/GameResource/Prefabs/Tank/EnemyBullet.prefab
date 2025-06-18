@@ -99,9 +99,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8982813d93916e04d838f6a30d63b605, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 10
+  bulletSpeed: 10
+  Speed_up_time: 6
   isPlayerBullet: 0
-  lifeTime: 5
+  lifeTime: 1
 --- !u!61 &1952907720681123027
 BoxCollider2D:
   m_ObjectHideFlags: 0
